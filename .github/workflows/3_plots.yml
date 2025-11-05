@@ -1,0 +1,19 @@
+name: Generate CFP Analysis Plots
+on:
+  workflow_dispatch:
+
+jobs:
+  plot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y python3 python3-pip
+      - run: pip3 install matplotlib pandas numpy
+      - run: python3 scripts/plot_results.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cfp-plots
+          path: |
+            hist_eloc_per_cfp.png
+            scatter_eloc_vs_cfp.png
+            box_by_type.png
