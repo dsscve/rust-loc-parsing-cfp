@@ -1,0 +1,28 @@
+name: LOC & COSMIC CFP Analysis
+on:
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y python3 git
+          cargo install tokei
+      - run: mkdir -p work
+      - run: |
+          echo "repo,rust_code,files,comments,blanks" > rust_loc_results.csv
+          while read -r repo; do
+            [[ -z "$repo" ]] && continue
+            dir="work/$(echo "$repo" | tr / _)"
+            git clone --depth 1 "https://github.com/$repo.git" "$dir" --quiet || continue
+            tokei "$dir" --output json > "$dir/tokei.json"
+            python3 scripts/parse_tokei.py "$repo" "$dir/tokei.json" >> rust_loc_results.csv
+          done < repos.txt
+      - run: python3 scripts/analyze_loc_cfp.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rust-loc-cfp
+          path: rust_loc_results_with_summary.csv
