@@ -7,20 +7,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # --- Checkout repo ---
+      # --- Checkout repository ---
       - uses: actions/checkout@v4
 
-      # --- Install dependencies ---
-      - name: Install system dependencies
+      # --- Install system dependencies ---
+      - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y python3 python3-pip git curl jq
           pip3 install matplotlib pandas numpy
 
-      - name: Install Rust CLI tools
-        run: |
-          cargo install tokei
-          cargo install rust-code-analysis-cli
+      # --- Install tokei (stable Rust) ---
+      - name: Install tokei
+        run: cargo install tokei
 
       # --- Prepare work directory ---
       - run: mkdir -p work
@@ -57,8 +56,8 @@ jobs:
       - name: Generate plots
         run: python3 scripts/plot_results.py
 
-      # --- Upload artifacts ---
-      - name: Upload CSV and plots
+      # --- Upload CSV and plots ---
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: rust-loc-cfp-artifacts
